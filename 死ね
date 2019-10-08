@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -10,37 +11,52 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 
-@Autonomous(name="Vuforia")
-public class 死ね extends LinearOpMode
-{
-    VuforiaLocalizer vuforiaLocalizer;
-    VuforiaLocalizer.Parameters parameters;
-    VuforiaTrackable visionTargets;
-    VuforiaTrackable target;
-    VuforiaTrackableDefaultListener listener;
+    @Autonomous(name="Vuforia")
+    public class 死ね extends LinearOpMode {
+        VuforiaLocalizer vuforiaLocalizer;
+        VuforiaLocalizer.Parameters parameters;
+        VuforiaTrackable visionTargets;
+        VuforiaTrackable target;
+        VuforiaTrackableDefaultListener listener;
 
-    OpenGLMatrix lastKnownLocation;
-    OpenGLMatrix phoneLocation;
+        OpenGLMatrix lastKnownLocation;
+        OpenGLMatrix phoneLocation;
 
-    public static final String VUFORIA_KEY = "ARCMwn7/////AAABmSQG7//BnE5ypZMB2YbULPg5zvN2gLbFOF3QXmgJhKfQcjT7vDIGWjO/I7hKJic4AamtURicl5A8b8oMG/NYWe82F1PAe9ZlKOFN4IBtcRMZhWhi3+UePOkwgqYmwxos1FQaMbNgfQhjmjcS0jpthI3Y+5A/tF8FD4ysrkOmoI/l2HypAxqyUBO6ZUuta9mjzbPxHnO0aRGwBSHYO5Pc8jyA6QDqv2AzgoeVc+WQWogI+w6mY9hhqS7vCBb0LUqALe0nFNwc9YbOfnT4D4O9iQLLWtdBoNG7IHgfxc2qBqFHKtR2jKOLeistzA4TPcjypH8Bg3R5aPAMRtZ8kn17vLoAGSrMYBIgB5wvRQfelEmq";
+        public static final String VUFORIA_KEY = "ARCMwn7/////AAABmSQG7//BnE5ypZMB2YbULPg5zvN2gLbFOF3QXmgJhKfQcjT7vDIGWjO/I7hKJic4AamtURicl5A8b8oMG/NYWe82F1PAe9ZlKOFN4IBtcRMZhWhi3+UePOkwgqYmwxos1FQaMbNgfQhjmjcS0jpthI3Y+5A/tF8FD4ysrkOmoI/l2HypAxqyUBO6ZUuta9mjzbPxHnO0aRGwBSHYO5Pc8jyA6QDqv2AzgoeVc+WQWogI+w6mY9hhqS7vCBb0LUqALe0nFNwc9YbOfnT4D4O9iQLLWtdBoNG7IHgfxc2qBqFHKtR2jKOLeistzA4TPcjypH8Bg3R5aPAMRtZ8kn17vLoAGSrMYBIgB5wvRQfelEmq";
 
-    public void runOpMode() throws InterruptedException {
+        public void runOpMode() throws InterruptedException {
 
 
-        waitForStart();
+            waitForStart();
 
-        while(opModeIsActive()) {
-            telemetry.update();
-            idle();
+            while (opModeIsActive()) {
+                telemetry.update();
+                idle();
+            }
         }
-    }
-    public void  setupVuforia()
-    {
-        parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        vuforiaLocalizer = ClassFactory.createVuforiaLocalizer(parameters);
 
-        visionTargets = (VuforiaTrackable) vuforiaLocalizer.loadTrackablesFromAsset("FTC_2019-20");
+        public void setupVuforia() {
+            parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
+            parameters.vuforiaLicenseKey = VUFORIA_KEY;
+            parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+            vuforiaLocalizer = ClassFactory.createVuforiaLocalizer(parameters);
+
+            visionTargets = (VuforiaTrackable) vuforiaLocalizer.loadTrackablesFromAsset("FTC_2019-20");
+
+            target = visionTargets.get(0);
+            target.setName("Wheels Target");
+            target.setLocation(createMatrix(0, 0, 0, 0, 0, 0));
+
+            phoneLocation = createMatrix(0, 0, 0, 0, 0, 0);
+
+            listener = (VuforiaTrackableDefaultListener) target.getListener();
+            listener.setPhoneInformation(phoneLocation, parameters.cameraDirection);
+        }
+
+        public openGLMatrix_createMatrix(float x, float y, float z, float u, float v, float w) {
+            return OpenGLMatrix.translation(x,y,z).
+                    multiplied(Orientation.getRotationMatrix(
+                            AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES,u,v,w));
+        }
+
     }
-}
