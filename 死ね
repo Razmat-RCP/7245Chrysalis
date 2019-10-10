@@ -76,3 +76,46 @@ public class VuforiaDemo extends LinearOpMode
             idle();
         }
     }
+
+    private void setupVuforia()
+    {
+        // Setup parameters to create localizer
+        parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId); // To remove the camera view from the screen, remove the R.id.cameraMonitorViewId
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.useExtendedTracking = false;
+        vuforiaLocalizer = ClassFactory.createVuforiaLocalizer(parameters);
+
+        // These are the vision targets that we want to use
+        // The string needs to be the name of the appropriate .xml file in the assets folder
+        visionTargets = vuforiaLocalizer.loadTrackablesFromAsset("FTC_2016-17");
+        Vuforia.setHint(HINT.HINT_MAX_SIMULTANEOUS_IMAGE_TARGETS, 4);
+
+        // Setup the target to be tracked
+        target = visionTargets.get(0); // 0 corresponds to the wheels target
+        target.setName("Wheels Target");
+        target.setLocation(createMatrix(0, 500, 0, 90, 0, 90));
+
+        // Set phone location on robot
+        phoneLocation = createMatrix(0, 225, 0, 90, 0, 0);
+
+        // Setup listener and inform it of phone information
+        listener = (VuforiaTrackableDefaultListener) target.getListener();
+        listener.setPhoneInformation(phoneLocation, parameters.cameraDirection);
+    }
+
+    // Creates a matrix for determining the locations and orientations of objects
+    // Units are millimeters for x, y, and z, and degrees for u, v, and w
+    private OpenGLMatrix createMatrix(float x, float y, float z, float u, float v, float w)
+    {
+        return OpenGLMatrix.translation(x, y, z).
+                multiplied(Orientation.getRotationMatrix(
+                        AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES, u, v, w));
+    }
+
+    // Formats a matrix into a readable string
+    private String formatMatrix(OpenGLMatrix matrix)
+    {
+        return matrix.formatAsTransform();
+    }
+}
