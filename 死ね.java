@@ -15,13 +15,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import com.qualcomm.robotcore.hardware.*;
 
-/*
- * This OpMode was written for the VuforiaDemo Basics video. This demonstrates basic principles of
- * using VuforiaDemo in FTC.
- */
-@Autonomous(name = "Vuforia")
-public class VuforiaDemo extends LinearOpMode
+
+@Autonomous(name = "死ね")
+public class 死ね extends LinearOpMode
 {
     // Variables to be used for later
     private VuforiaLocalizer vuforiaLocalizer;
@@ -29,11 +27,13 @@ public class VuforiaDemo extends LinearOpMode
     private VuforiaTrackables visionTargets;
     private VuforiaTrackable target;
     private VuforiaTrackableDefaultListener listener;
+    private DcMotor Thing1;
+    private DcMotor Thing2;
 
     private OpenGLMatrix lastKnownLocation;
     private OpenGLMatrix phoneLocation;
 
-    private static final String VUFORIA_KEY = ""; // Insert your own key here
+    private static final String VUFORIA_KEY = "ARCMwn7/////AAABmSQG7//BnE5ypZMB2YbULPg5zvN2gLbFOF3QXmgJhKfQcjT7vDIGWjO/I7hKJic4AamtURicl5A8b8oMG/NYWe82F1PAe9ZlKOFN4IBtcRMZhWhi3+UePOkwgqYmwxos1FQaMbNgfQhjmjcS0jpthI3Y+5A/tF8FD4ysrkOmoI/l2HypAxqyUBO6ZUuta9mjzbPxHnO0aRGwBSHYO5Pc8jyA6QDqv2AzgoeVc+WQWogI+w6mY9hhqS7vCBb0LUqALe0nFNwc9YbOfnT4D4O9iQLLWtdBoNG7IHgfxc2qBqFHKtR2jKOLeistzA4TPcjypH8Bg3R5aPAMRtZ8kn17vLoAGSrMYBIgB5wvRQfelEmq\n"; // Insert your own key here
 
     private float robotX = 0;
     private float robotY = 0;
@@ -42,6 +42,7 @@ public class VuforiaDemo extends LinearOpMode
     public void runOpMode() throws InterruptedException
     {
         setupVuforia();
+        setupHardware();
 
         // We don't know where the robot is, so set it to the origin
         // If we don't include this, it would be null, which would cause errors later on
@@ -74,7 +75,29 @@ public class VuforiaDemo extends LinearOpMode
             // Send telemetry and idle to let hardware catch up
             telemetry.update();
             idle();
+
+            setupHardware();
+            testRun();
         }
+    }
+
+    private void testRun() {
+        int flag = 0;
+        Thing1.setPower(5.0);
+        Thing2.setPower(5.0);
+        flag = 1;
+    }
+
+    private void setupHardware() {
+
+        //Defining motors
+        Thing1 = hardwareMap.get(DcMotor.class, "Thing1");
+        Thing2 = hardwareMap.get(DcMotor.class, "Thing2");
+
+        //Set direction
+
+        Thing1.setDirection(DcMotor.Direction.REVERSE);
+        Thing2.setDirection(DcMotor.Direction.FORWARD);
     }
 
     private void setupVuforia()
