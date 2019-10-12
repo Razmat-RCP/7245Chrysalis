@@ -17,6 +17,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import com.qualcomm.robotcore.hardware.*;
 
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaSkyStone;
+import org.firstinspires.ftc.robotcore.external.navigation.VuMarkInstanceId;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 
 @Autonomous(name = "死ね")
 public class 死ね extends LinearOpMode
@@ -39,8 +42,32 @@ public class 死ね extends LinearOpMode
     private float robotY = 0;
     private float robotAngle = 0;
 
+    OpenGLMatrix lastLocation = null; // WARNING: VERY INACCURATE, USE ONLY TO ADJUST TO FIND IMAGE AGAIN! DO NOT BASE MAJOR MOVEMENTS OFF OF THIS!!
+    private double tX; // X value extracted from our the offset of the traget relative to the robot.
+    private double tZ; // Same as above but for Z
+    private double tY; // Same as above but for Y
+    private double rX; // X value extracted from the rotational components of the tartget relitive to the robot
+    private double rY; // Same as above but for Y
+    private double rZ; // Same as above but for Z
+
+    VuforiaLocalizer vuforia;
+
+
     public void runOpMode() throws InterruptedException
     {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        parameters.vuforiaLicenseKey = "ARCMwn7/////AAABmSQG7//BnE5ypZMB2YbULPg5zvN2gLbFOF3QXmgJhKfQcjT7vDIGWjO/I7hKJic4AamtURicl5A8b8oMG/NYWe82F1PAe9ZlKOFN4IBtcRMZhWhi3+UePOkwgqYmwxos1FQaMbNgfQhjmjcS0jpthI3Y+5A/tF8FD4ysrkOmoI/l2HypAxqyUBO6ZUuta9mjzbPxHnO0aRGwBSHYO5Pc8jyA6QDqv2AzgoeVc+WQWogI+w6mY9hhqS7vCBb0LUqALe0nFNwc9YbOfnT4D4O9iQLLWtdBoNG7IHgfxc2qBqFHKtR2jKOLeistzA4TPcjypH8Bg3R5aPAMRtZ8kn17vLoAGSrMYBIgB5wvRQfelEmq\n";
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT; // Use FRONT Camera (Change to BACK if you want to use that one)
+        parameters.cameraMonitorFeedback = VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES; // Display Axes
+
+        this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
+        VuforiaTrackables skystoneTrackables = this.vuforia.loadTrackablesFromAsset("Skystone");
+        VuforiaTrackable skystoneTemplate = skystoneTrackables.get(0);
+        waitForStart();
+
+        skystoneTrackables.activate(); // Activate Vuforia
+
         setupVuforia();
         setupHardware();
 
@@ -55,6 +82,14 @@ public class 死ね extends LinearOpMode
 
         while(opModeIsActive())
         {
+            VuforiaSkyStone vuMark = RelicRecoveryVuMark.from(skystoneTemplate);
+            if (vuMark != RelicRecoveryVuMark.UNKNOWN) { // Test to see if image is visable
+                OpenGLMatrix pose = ((VuforiaTrackableDefaultListener) skystoneTemplate.getListener()).getPose(); // Get Positional value to use later
+                telemetry.addData("Pose", format(pose));
+                Thing1.setPower(0.0);
+                Thing2.setPower(0.0);
+            }
+
             // Ask the listener for the latest information on where the robot is
             OpenGLMatrix latestLocation = listener.getUpdatedRobotLocation();
 
@@ -86,6 +121,7 @@ public class 死ね extends LinearOpMode
         Thing1.setPower(5.0);
         Thing2.setPower(5.0);
         flag = 1;
+
     }
 
     private void setupHardware() {
@@ -96,7 +132,7 @@ public class 死ね extends LinearOpMode
 
         //Set direction
 
-        Thing1.setDirection(DcMotor.Direction.REVERSE);
+        Thing1.setDirection(DcMotor.Direction.FORWARD);
         Thing2.setDirection(DcMotor.Direction.FORWARD);
     }
 
