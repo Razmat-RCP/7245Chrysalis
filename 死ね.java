@@ -36,7 +36,7 @@ public class 死ね extends LinearOpMode
     private OpenGLMatrix lastKnownLocation;
     private OpenGLMatrix phoneLocation;
 
-    private static final String VUFORIA_KEY = "ARCMwn7/////AAABmSQG7//BnE5ypZMB2YbULPg5zvN2gLbFOF3QXmgJhKfQcjT7vDIGWjO/I7hKJic4AamtURicl5A8b8oMG/NYWe82F1PAe9ZlKOFN4IBtcRMZhWhi3+UePOkwgqYmwxos1FQaMbNgfQhjmjcS0jpthI3Y+5A/tF8FD4ysrkOmoI/l2HypAxqyUBO6ZUuta9mjzbPxHnO0aRGwBSHYO5Pc8jyA6QDqv2AzgoeVc+WQWogI+w6mY9hhqS7vCBb0LUqALe0nFNwc9YbOfnT4D4O9iQLLWtdBoNG7IHgfxc2qBqFHKtR2jKOLeistzA4TPcjypH8Bg3R5aPAMRtZ8kn17vLoAGSrMYBIgB5wvRQfelEmq\n"; // Insert your own key here
+    private static final String VUFORIA_KEY = "";
 
     private float robotX = 0;
     private float robotY = 0;
@@ -57,7 +57,7 @@ public class 死ね extends LinearOpMode
     {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = "ARCMwn7/////AAABmSQG7//BnE5ypZMB2YbULPg5zvN2gLbFOF3QXmgJhKfQcjT7vDIGWjO/I7hKJic4AamtURicl5A8b8oMG/NYWe82F1PAe9ZlKOFN4IBtcRMZhWhi3+UePOkwgqYmwxos1FQaMbNgfQhjmjcS0jpthI3Y+5A/tF8FD4ysrkOmoI/l2HypAxqyUBO6ZUuta9mjzbPxHnO0aRGwBSHYO5Pc8jyA6QDqv2AzgoeVc+WQWogI+w6mY9hhqS7vCBb0LUqALe0nFNwc9YbOfnT4D4O9iQLLWtdBoNG7IHgfxc2qBqFHKtR2jKOLeistzA4TPcjypH8Bg3R5aPAMRtZ8kn17vLoAGSrMYBIgB5wvRQfelEmq\n";
+        parameters.vuforiaLicenseKey = "";
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT; // Use FRONT Camera (Change to BACK if you want to use that one)
         parameters.cameraMonitorFeedback = VuforiaLocalizer.Parameters.CameraMonitorFeedback.AXES; // Display Axes
 
