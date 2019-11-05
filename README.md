@@ -7,3 +7,4 @@ As of Fall Term 2019 made by Rosnel Leyva-Cortes, Rijul Mehta
 
 # ~ Friendship is Magic  ~
 NO IT'S REALLY NOT
+![](WillSong.gif)
