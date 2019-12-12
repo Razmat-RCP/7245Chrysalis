@@ -7,7 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 //import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -37,7 +39,7 @@ public class WebcamPERIM热茶 extends LinearOpMode {
 
     // IMPORTANT: If you are using a USB WebCam, you must select CAMERA_CHOICE = BACK; and PHONE_IS_PORTRAIT = false;
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
-    private static final boolean PHONE_IS_PORTRAIT = false  ;
+    private static final boolean PHONE_IS_PORTRAIT = false;
 
     private static final String VUFORIA_KEY = "ARCMwn7/////AAABmSQG7//BnE5ypZMB2YbULPg5zvN2gLbFOF3QXmgJhKfQcjT7vDIGWjO/I7hKJic4AamtURicl5A8b8oMG/NYWe82F1PAe9ZlKOFN4IBtcRMZhWhi3+UePOkwgqYmwxos1FQaMbNgfQhjmjcS0jpthI3Y+5A/tF8FD4ysrkOmoI/l2HypAxqyUBO6ZUuta9mjzbPxHnO0aRGwBSHYO5Pc8jyA6QDqv2AzgoeVc+WQWogI+w6mY9hhqS7vCBb0LUqALe0nFNwc9YbOfnT4D4O9iQLLWtdBoNG7IHgfxc2qBqFHKtR2jKOLeistzA4TPcjypH8Bg3R5aPAMRtZ8kn17vLoAGSrMYBIgB5wvRQfelEmq";
 
@@ -88,28 +90,61 @@ public class WebcamPERIM热茶 extends LinearOpMode {
     private DcMotor rightBack;
     private DcMotor leftFront;
     private DcMotor rightFront;
+    Servo gripper;
+    DcMotor vertTrans;
+    DcMotor horizTrans;
+    DcMotor leftRoller;
+    DcMotor rightRoller;
+    CRServo  leftServo;
+    CRServo rightServo;
 
     @Override public void runOpMode() {
         /*
          * Retrieve the camera we are to use.
          */
+
+
         webcamName = hardwareMap.get(WebcamName.class, "EyeCream");
 
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
+        leftBack.setDirection(DcMotor.Direction.FORWARD);
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
         rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        gripper = hardwareMap.get(Servo.class, "gripper");
+
+        vertTrans = hardwareMap.get(DcMotor.class, "vertTrans");
+
+        horizTrans = hardwareMap.get(DcMotor.class, "horizTrans");
+
+        leftRoller = hardwareMap.get(DcMotor.class, "leftRoller");
+        leftRoller.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftRoller.setDirection(DcMotor.Direction.FORWARD);
+
+        rightRoller = hardwareMap.get(DcMotor.class, "rightRoller");
+        rightRoller.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightRoller.setDirection(DcMotor.Direction.FORWARD);
+
+        leftServo = hardwareMap.get(CRServo.class, "leftServo");
+        rightServo = hardwareMap.get(CRServo.class, "rightServo");
+
+        leftServo.setPower(0.0);
+        rightServo.setPower(0.0);
 
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
@@ -277,26 +312,78 @@ public class WebcamPERIM热茶 extends LinearOpMode {
         // Tap the preview window to receive a fresh image.
 
         targetsSkyStone.activate();
-        //encoderDrive(1.0, -5.0, 5.0, 5.0, -5.0, 5);
         while (!isStopRequested()) {
-
+            gripper.setPosition(0.9);
+            encoderDrive(1.0,36.0,36.0,36.0,36.0);
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
-            for (VuforiaTrackable trackable : allTrackables) {
-                if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
-                    telemetry.addData("Visible Target", trackable.getName());
-                    targetVisible = true;
-                    //encoderDrive(1.0, 2.0, 2.0, 2.0, 2.0, 5);
+            for (VuforiaTrackable trackable : allTrackables) { //Scans row of stones as moving down, if the boolean to detect skystone is true, stops
+                while (!((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                    encoderDrive(1.0, 3.0,-3.0,-3.0,3.0);
+                    if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                        telemetry.addData("Visible Target", trackable.getName());
+                        targetVisible = true;
+                        break;
 
-                    // getUpdatedRobotLocation() will return null if no new information is available since
-                    // the last time that call was made, or if the trackable is not currently visible.
-                    OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
-                    if (robotLocationTransform != null) {
-                        lastLocation = robotLocationTransform;
+                        // getUpdatedRobotLocation() will return null if no new information is available since
+                        // the last time that call was made, or if the trackable is not currently visible.
+                        //OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                        //if (robotLocationTransform != null) {
+                        //    lastLocation = robotLocationTransform;
+                        //}
                     }
-                    break;
                 }
+                //rollers are activated, and robot moves forward for 2 feet. It then grips stone.
+                leftRoller.setPower(-1.0);
+                rightRoller.setPower(1.0);
+                leftServo.setPower(-1.0);
+                rightServo.setPower(1.0);
+                encoderDrive(1.0,24,24,24,24);
+                gripper.setPosition(0.7);
+
+                //moves back 36 inches, goes under colored bridge, turn robot around, goes up until wall image is detected
+                encoderDrive(1.0,-36,-36,-36,-36);
+                leftBack.setDirection(DcMotor.Direction.FORWARD);
+                rightBack.setDirection(DcMotor.Direction.FORWARD);
+                leftFront.setDirection(DcMotor.Direction.FORWARD);
+                rightFront.setDirection(DcMotor.Direction.FORWARD);
+                encoderDrive(1.0, 3.0, 3.0, 3.0, 3.0);
+                leftBack.setDirection(DcMotor.Direction.FORWARD);
+                rightBack.setDirection(DcMotor.Direction.REVERSE);
+                leftFront.setDirection(DcMotor.Direction.REVERSE);
+                rightFront.setDirection(DcMotor.Direction.FORWARD);
+                while (!((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                    encoderDrive(1.0,20,20,20,20);
+                    if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+                        telemetry.addData("Visible Target", trackable.getName());
+                        targetVisible = true;
+                        break;
+                    }
+                }
+                //turn right, move out horizontal translator, drop stone, move translator back in, move up vertical translator, back up to foundation, drop vertical translator, move forward blank inches
+                leftBack.setDirection(DcMotor.Direction.FORWARD);
+                rightBack.setDirection(DcMotor.Direction.FORWARD);
+                leftFront.setDirection(DcMotor.Direction.FORWARD);
+                rightFront.setDirection(DcMotor.Direction.FORWARD);
+                encoderDrive(1.0, 3.0, 3.0, 3.0, 3.0);
+                leftBack.setDirection(DcMotor.Direction.FORWARD);
+                rightBack.setDirection(DcMotor.Direction.REVERSE);
+                leftFront.setDirection(DcMotor.Direction.REVERSE);
+                rightFront.setDirection(DcMotor.Direction.FORWARD);
+                horizTrans.setTargetPosition(3700);
+                horizTrans.setPower(1.0);
+                gripper.setPosition(0.9);
+                horizTrans.setTargetPosition(0);
+                horizTrans.setPower(1.0);
+                vertTrans.setTargetPosition(600);
+                encoderDrive(1.0,-10, -10,-10,-10);
+                vertTrans.setTargetPosition(0);
+                vertTrans.setPower(0);
+                encoderDrive(1.0,24,24,24,24);
+                vertTrans.setTargetPosition(800);
+                encoderDrive(1.0, 25.0,-25.0,-25.0,25.0);
             }
+
 
             // Provide feedback as to where the robot is located (if we know).
             if (targetVisible) {
@@ -319,7 +406,7 @@ public class WebcamPERIM热茶 extends LinearOpMode {
         targetsSkyStone.deactivate();
     }
 
-    public void encoderDrive(double speed, double fLeftInches, double fRightInches, double bLeftInches, double bRightInches, double timeoutS) {
+    public void encoderDrive(double speed, double fLeftInches, double fRightInches, double bLeftInches, double bRightInches) {
 
         int fLeftTarget;
         int fRightTarget;
@@ -338,15 +425,16 @@ public class WebcamPERIM热茶 extends LinearOpMode {
             rightBack.setTargetPosition(bRightTarget);
 
             runtime.reset();
+
             leftFront.setPower(Math.abs(speed));
             rightFront.setPower(Math.abs(speed));
             leftBack.setPower(Math.abs(speed));
             rightBack.setPower(Math.abs(speed));
 
-            leftFront.setPower(0);
-            rightFront.setPower(0);
-            leftBack.setPower(0);
-            rightBack.setPower(0);
+//            leftFront.setPower(0);
+//            rightFront.setPower(0);
+//            leftBack.setPower(0);
+//            rightBack.setPower(0);
 
             leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
